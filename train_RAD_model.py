@@ -21,20 +21,15 @@ import os.path
 import re
 import sys
 import tarfile
-import itertools
 import argparse
 import pickle
-import matplotlib.pyplot as plt
 
 import numpy as np
 from six.moves import urllib
 
 import tensorflow as tf
 import xgboost as xgb
-from sklearn.metrics import confusion_matrix
-from sklearn import metrics
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import KFold, train_test_split
 from sklearn.decomposition import PCA
 
 
@@ -108,6 +103,8 @@ def main():
     bad_category = ['good_product', 'knife', 'gun', 'nudity']
     output_directory = 'RAD'
 
+    DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
+
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
 
@@ -131,14 +128,14 @@ def main():
     print('extracting features using inception-V3 model')
     feature, label = extract_features(model_dir, train_dir, bad_category)
 
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
     LE = LabelEncoder()
     LE.fit(label)
     label = LE.transform(label)
     print('saving Label Encoder to output directory')
     pickle.dump(LE, open(os.path.join(output_directory, "LabelEncoder.p"), "wb"))
-
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
 
     pca_decomposer = PCA(n_components=100)
     pca_decomposer.fit(feature)
@@ -153,7 +150,7 @@ def main():
 
     # parameter setting
     param = {'max_depth': 7, 'eta': 0.1, 'objective': 'multi:softmax',
-             'num_class': len(LE.classes_), 'subsample': 0.8, 'seed': 0}
+             'num_class': len(LE.classes_), 'silent':1, 'subsample': 0.8, 'seed': 0}
     num_round = 300
     clf_xgb = xgb.train(param, dtrain, num_round)
 
