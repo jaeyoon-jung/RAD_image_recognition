@@ -1,19 +1,43 @@
-from train_RAD_model import extract_features
+from train_RAD_model import create_graph
 
+import re
 import pickle
 import os.path
 import numpy as np
 
+import tensorflow as tf
 import xgboost as xgb
-from sklearn.preprocessing import LabelEncoder
-from sklearn.decomposition import PCA
+
+def extract_test_features(model_dir, test_dir):
+    list_images = [os.path.join(test_dir, f) for f in
+                   os.listdir(test_dir) if re.search('jpg|JPG|jpeg|JPEG', f)]
+    # pool_3.0 returns 2048 features. Empty list to add features
+    features = np.empty((len(list_images), 2048))
+
+    create_graph(model_dir)
+
+    print('extracting features from pre-trained CNN architecture...')
+    with tf.Session() as sess:
+        next_to_last_tensor = sess.graph.get_tensor_by_name('pool_3:0')
+        for ind, image in enumerate(list_images):
+            if not tf.gfile.Exists(image):
+                tf.logging.fatal('File does not exist %s', image)
+            image_data = tf.gfile.FastGFile(image, 'rb').read()
+            predictions = sess.run(next_to_last_tensor,
+                                   {'DecodeJpeg/contents:0': image_data})
+            features[ind, :] = np.squeeze(predictions)
+
+    tf.reset_default_graph()
+
+    # combine all in a single list
+
+    return features
 
 
 def main():
     RAD_dir = 'RAD'
     model_dir = 'inception_v3'
     input_dir = 'bad_image/test'
-    bad_category = ['good_product', 'knife', 'gun', 'nudity']
 
     LE_dir = os.path.join(RAD_dir, 'LabelEncoder.p')
     clf_dir = os.path.join(RAD_dir, 'RAD_model.p')
@@ -27,9 +51,7 @@ def main():
     with open(PCA_dir, 'rb') as pca_f:
         pca_decomposer = pickle.load(pca_f)
 
-    feature, label = extract_features(model_dir, input_dir, bad_category)
-
-    label = LE.transform(label)
+    feature = extract_test_features(model_dir, input_dir)
     feature_decomposed = pca_decomposer.transform(feature)
 
     dtest = xgb.DMatrix(feature_decomposed, missing=feature.shape[0])
@@ -38,3 +60,6 @@ def main():
     result = LE.inverse_transform(y_pred.astype('int'))
 
     return result
+
+if __name__ == "__main__":
+    main()
