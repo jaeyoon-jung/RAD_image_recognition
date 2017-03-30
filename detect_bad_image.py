@@ -4,6 +4,7 @@ import re
 import pickle
 import os.path
 import numpy as np
+import argparse
 
 import tensorflow as tf
 import xgboost as xgb
@@ -36,9 +37,20 @@ def extract_test_features(model_dir, test_dir):
 
 
 def main():
-    RAD_dir = 'RAD'
-    model_dir = 'inception_v3'
-    input_dir = 'bad_image/test'
+    parser = argparse.ArgumentParser('Extract deep-learned features from the downloaded  \
+                                      inception-V3 model and run through the trained RAD model \
+                                      to detect bad product images.')
+    parser.add_argument('-r', '--RAD_dir', help = 'RAD model and object directory',
+                        default='RAD')
+    parser.add_argument('-m', '--model_dir', help='inception-v3 directory',
+                        default='inception_v3')
+    parser.add_argument('input_dir', help='input data directory')
+    args = parser.parse_args()
+
+    #assign the parsed arguments to local variables
+    RAD_dir = args.RAD_dir
+    model_dir = args.model_dir
+    input_dir = args.input_dir
 
     LE_dir = os.path.join(RAD_dir, 'LabelEncoder.p')
     clf_dir = os.path.join(RAD_dir, 'RAD_model.p')
