@@ -86,22 +86,24 @@ def extract_features(model_dir, train_dir, bad_category):
 
 
 def main():
-    #     parser = argparse.ArgumentParser('Download inception-V3 model to a specified directory \
-    #                                      and train an XGBoost model with deep learned features on \
-    #                                      good and bad product images.')
-    #     parser.add_argument('-m', '--model_dir', help = 'model directory',
-    #                         default = 'imagenet')
-    #     parser.add_argument('-t', '--train_dir', help = 'training data directory',
-    #                         default = None)
-    #     args = parser.parse_args()
+    parser = argparse.ArgumentParser('Download inception-V3 model to a specified directory \
+                                     and train an XGBoost model with deep learned features on \
+                                     good and bad product images.')
+    parser.add_argument('train_dir', help='training data directory')
+    parser.add_argument('-m', '--model_dir', help='model directory',
+                        default='inception_v3')
+    parser.add_argument('-o', '--output_dir', help='destination directory of RAD model',
+                        default='RAD')
 
-    #     #assign the parsed arguments to local variable
-    #     model_dir = args.model_dir
-    #     train_dir = args.train_dir
-    model_dir = 'inception_v3'
-    train_dir = 'bad_image/train'
+    args = parser.parse_args()
+
+    #assign the parsed arguments to local variable
+    model_dir = args.model_dir
+    train_dir = args.train_dir
+    output_directory = args.output_dir
+
+    # classes the model is trained on currently
     bad_category = ['good_product', 'knife', 'gun', 'nudity']
-    output_directory = 'RAD'
 
     DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
 
