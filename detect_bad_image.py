@@ -8,6 +8,7 @@ import numpy as np
 import tensorflow as tf
 import xgboost as xgb
 
+
 def extract_test_features(model_dir, test_dir):
     list_images = [os.path.join(test_dir, f) for f in
                    os.listdir(test_dir) if re.search('jpg|JPG|jpeg|JPEG', f)]
@@ -16,7 +17,7 @@ def extract_test_features(model_dir, test_dir):
 
     create_graph(model_dir)
 
-    print('extracting features from pre-trained CNN architecture...')
+    print('The RAD model is running...')
     with tf.Session() as sess:
         next_to_last_tensor = sess.graph.get_tensor_by_name('pool_3:0')
         for ind, image in enumerate(list_images):
@@ -59,7 +60,23 @@ def main():
     y_pred = clf_xgb.predict(dtest)
     result = LE.inverse_transform(y_pred.astype('int'))
 
-    return result
+    input_images = [f for f in
+                    os.listdir(input_dir) if re.search('jpg|JPG|jpeg|JPEG', f)]
+
+    bad_category = set(filter(lambda a: a != 'good_product', result))
+
+    #     bad_products = dict()
+
+    #     for itm in bad_category:
+    #         bad_products[itm] = [input_images[i] for i, j in enumerate(result) if j == itm]
+    print()
+    if len(bad_category) > 0:
+        print('The feed contains following bad images')
+        for itm in bad_category:
+            flagged = [input_images[i] for i, j in enumerate(result) if j == itm]
+            print('  {}: {}'.format(itm, ', '.join(flagged)))
+    else:
+        print('No bad images were detected!')
 
 if __name__ == "__main__":
     main()
