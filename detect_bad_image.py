@@ -82,13 +82,22 @@ def main():
     #     for itm in bad_category:
     #         bad_products[itm] = [input_images[i] for i, j in enumerate(result) if j == itm]
     print()
+    print()
+    print()
+    print()
+    print()
+    print()
+    print()
     if len(bad_category) > 0:
-        print('The feed contains following bad images')
+        print('Your feed contains the following bad images')
         for itm in bad_category:
             flagged = [input_images[i] for i, j in enumerate(result) if j == itm]
             print('  {}: {}'.format(itm, ', '.join(flagged)))
     else:
         print('No bad images were detected!')
+    print()
+    print()
+    print()
 
 if __name__ == "__main__":
     main()
