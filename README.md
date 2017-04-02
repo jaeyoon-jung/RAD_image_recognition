@@ -57,7 +57,7 @@ When validated with K-Fold cross validation with 5 folds (20% split for test dat
 the model achieved accuracy of approximately 95.5%. 
 
 Below is a confusion matrix of the 5-fold validation:
-
+![alt tag](https://cloud.githubusercontent.com/assets/20206159/24585620/50d6a6a8-17ca-11e7-9bab-daf86d43a6d5.png)
 
 For the demo, I demonstrated the performance of the model using real product images from Criteo's feed. Out of 3 good products, 2 knives, 2 nudity, and 2 guns, the model classified 8/9 images correctly. Because of constraints on time and
 data access, I could not create an additional test dataset that strictly consists of Criteo's product images. 
